@@ -11,7 +11,7 @@ This is a python implementation of the code developed in [1]. The scrips are in 
 - calibration_v4.py: Code used to calculate the calibration constants for the V4 data type.
 - measurement_class.py: create an object to process data obtained from V4 Photometer.
 - ozone_model.py: functions to process ozone model.
-- processing_data.py: scrip to fix data depending on the available information measurements.
+- processing_data.py: scrip to fix data depending on the available information measurements (save the data into a .json file).
 
 The end scrips are aod_display.py or aod_display_v4.py.
 ## References
