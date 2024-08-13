@@ -5,6 +5,8 @@ Python implementation of the AOD retrieval algorithms (include ozone affected ba
 This is a python implementation of the code developed in [1]. The scrips are in "Code" folder. Here, we provide a small description of those codes:
 
 - aeronet_processing_data.py: Takes de data provided by AERONET, extract the main features, and creates a .json file.
+  You can get AERONET data using: https://aeronet.gsfc.nasa.gov/cgi-bin/data_display_aod_v3?site=Santiago_Beauchef&nachal=0&year=2024&month=4&aero_water=0&level=2&if_day=0&if_err=0&place_code=10&year_or_month=0
+  please download the files into the aeronet folder.
 - aod_display: Using the .json files and estimates the AOD as [1] and plot the daily AOD profiles.
 - aod_display_v4.py: Using the .json files and estimates the AOD and plot the daily AOD profiles under V4 type data. 
 - calibration_class.py: Code used to calculate the calibration constants as [1].
