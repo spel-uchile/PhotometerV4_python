@@ -492,7 +492,9 @@ def rmse_calibrationv3(x):
     return np.sqrt(np.sum(((amgstrom_interpolation(x[0],alpha,tau1))-((np.log(x[1]/(res**2))-np.log(v-4)-reyleigh(x[0])*(p/1013.25)*am)/am))**2)/len(v))
 
 def stgo_aod(x,earth_sun_dis,vmeasure,press, air_mass, mu, ozone):
-    return ((np.log(x[1]/(earth_sun_dis**2))-np.log(vmeasure)-reyleigh(x[0])*(press/1013.25)*air_mass-got_o3(ozone,x[2],ozo_model)*mu)/air_mass)
+    return ((np.log(x[1]/(earth_sun_dis**2))-np.log(vmeasure)-reyleigh(x[0])*(press/1013.25)*air_mass-got_o3(ozone,x[0],ozo_model)*mu)/air_mass)
+    #return ((np.log(x[1]/(earth_sun_dis**2))-np.log(vmeasure)-reyleigh(x[0])*(press/1013.25)*air_mass-got_o3(ozone,x[2],ozo_model)*mu)/air_mass)
+    #return ((np.log(x[1]/(earth_sun_dis**2))-np.log(vmeasure)-reyleigh(x[0])*(press/1013.25)*air_mass)/air_mass)
 
 def stgo_aodv3(x,earth_sun_dis,vmeasure,press, air_mass):
     return ((np.log(x[1]/(earth_sun_dis**2))-np.log(vmeasure)-reyleigh(x[0])*(press/1013.25)*air_mass)/air_mass)
@@ -507,7 +509,7 @@ def plot_day(unit, time, m_mean,  m_max = [], m_min = [], aero_time= [], aero_da
         fig,ax = plt.subplots(figsize=(12.8,9.6))
             
         if (len(m_max) != 0) and (len(m_min) != 0):
-            ax.errorbar(time, m_mean, yerr=[m_mean-m_min,m_max-m_mean], fmt='.-')
+            ax.errorbar(time, m_mean, yerr=[m_mean-m_max,m_min-m_mean], fmt='.-')
         else: 
             ax.errorbar(time, m_mean, fmt='.-')
                             
@@ -562,9 +564,11 @@ def plot_hist(unit, data, sensor = ' No Identified '):
     return True
 
 if __name__ == "__main__":
-    stgo_unit = '010'
+    #stgo_unit = '010'
+    #stgo_unit = '008'
+    stgo_unit = '003'
     aero_unit = '835'
-    aero_unit2 = '760'
+    #aero_unit2 = '760'
     ozo_model = load_ozone_model()
     
     with open('Code/../../Calibration/'+ stgo_unit +'.json', 'r') as file:
@@ -573,8 +577,8 @@ if __name__ == "__main__":
         print(stgo_unit)
         
         #if True:
-        lb = 0.35
-        ub = 0.75
+        lb = 0.33
+        ub = 0.42
         
         x1 = np.array(json_file['x1'])
         d1 = np.array(json_file['date1'])
@@ -622,7 +626,11 @@ if __name__ == "__main__":
         else:
             chk1 = 0
             print(stgo_unit +' Sensor 1 no tiene datos')
-            
+        
+        #if True:
+        lb = 0.35
+        ub = 0.45
+        
         if len(x2) != 0:
             x20 = x2[:,0]
             x21 = x2[:,1]
@@ -660,6 +668,9 @@ if __name__ == "__main__":
             chk2 = 0
             print(stgo_unit +' Sensor 2 no tiene datos')                    
 
+        #if True:
+        lb = 0.53
+        ub = 0.62
         if len(x3) != 0:
             x30 = x3[:,0]
             x31 = x3[:,1]
@@ -696,7 +707,10 @@ if __name__ == "__main__":
         else:
             chk3 = 0
             print(stgo_unit +' Sensor 3 no tiene datos')
-            
+        
+        #if True:
+        lb = 0.38
+        ub = 0.99
         if len(x4) != 0:
             x40 = x4[:,0]
             x41 = x4[:,1]
@@ -802,7 +816,7 @@ if __name__ == "__main__":
                 csvwriter.writerow(v41)
                 csvwriter.writerow(v42)
                 
-    datei = dt.datetime(2020, 1, 1)
+    datei = dt.datetime(2024, 1, 1)
     
     rmse11 =[]
     rmse21 =[]
@@ -826,7 +840,7 @@ if __name__ == "__main__":
     amgstromv42 = []
     aamgstrom = []
     
-    while datei != dt.datetime(2021, 1, 1):
+    while datei != dt.datetime(2025, 1, 1):
  
         day = datei.day
         month = datei.month
@@ -841,7 +855,7 @@ if __name__ == "__main__":
         
         stgo_data = load_stgo_data(stgo_unit, date_day)
         aero_data = load_aero_data(aero_unit, date_day)
-        aero_data2 = load_aero_data(aero_unit2, date_day)
+        #aero_data2 = load_aero_data(aero_unit2, date_day)
                 
         if (stgo_data != []):
                
@@ -854,10 +868,10 @@ if __name__ == "__main__":
             
             if (aero_data != []):
                 aero_data = aeronet_filter(aero_data)
-                aero_data2 = aeronet_filter(aero_data2)
+                #aero_data2 = aeronet_filter(aero_data2)
             
                 t1, aero_lamb, amgstrom, aero_date, aero_seconds, ozone, aero_latitude, aero_longitude, aero_air_mass = aero_useful_data_v2(aero_data)
-                t12, aero_lamb2, amgstrom2, aero_date2, aero_seconds2, ozone2, aero_latitude2, aero_longitude2, aero_air_mass2 = aero_useful_data_v2(aero_data2)
+                #t12, aero_lamb2, amgstrom2, aero_date2, aero_seconds2, ozone2, aero_latitude2, aero_longitude2, aero_air_mass2 = aero_useful_data_v2(aero_data2)
                 
                 if m1 != []:
                     m11, m12, m13, ipressure1, ialtitude1, iairmass1, iamu1, ir1, del1 = interpolate(m1, pressure1, altitude1, airmass1, amu1, r1, seconds1, aero_seconds)
@@ -1039,7 +1053,6 @@ if __name__ == "__main__":
             
                         time_4 = np.delete(np.array(aero_date),del4)
                         times_4 = np.delete(np.array(aero_seconds),del4)
-                        
                         itemp4 = np.interp(aero_seconds, seconds4, temperature4, left=0, right=0)
                         temp_4 = np.delete(np.array(itemp4),del4)
         
@@ -1230,60 +1243,73 @@ if __name__ == "__main__":
     
                 if m1 != [] and chk1:
                     
-                    aod_111 = stgo_aod(v11, ir1, m11, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
-                    aod_121 = stgo_aod(v11, ir1, m12, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
-                    aod_131 = stgo_aod(v11, ir1, m13, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
+                    try:
+                    
+                        aod_111 = stgo_aod(v11, ir1, m11, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
+                        aod_121 = stgo_aod(v11, ir1, m12, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
+                        aod_131 = stgo_aod(v11, ir1, m13, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
         
-                    aod_112 = stgo_aod(v12, ir1, m11, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
-                    aod_122 = stgo_aod(v12, ir1, m12, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
-                    aod_132 = stgo_aod(v12, ir1, m13, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
+                        aod_112 = stgo_aod(v12, ir1, m11, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
+                        aod_122 = stgo_aod(v12, ir1, m12, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
+                        aod_132 = stgo_aod(v12, ir1, m13, ipressure1, iairmass1, iamu1, np.delete(ozone,del1))
         
-                    time_1 = date1
-    
-                    plot_day(stgo_unit, time_1, aod_121, m_max=aod_111, m_min=aod_131, sensor = 'Sensor 1 NA')     
+                        time_1 = date1
+                        
+                        plot_day(stgo_unit, time_1, aod_121, m_max=aod_111, m_min=aod_131, sensor = 'Sensor 1 NA')     
+                        
+                    except:
+                        print('No plotable data Sensor 1')
                             
                 if m2 != [] and chk2:
-
-                    aod_211 = stgo_aod(v21, ir2, m21, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
-                    aod_221 = stgo_aod(v21, ir2, m22, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
-                    aod_231 = stgo_aod(v21, ir2, m23, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
-        
-                    aod_212 = stgo_aod(v22, ir2, m21, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
-                    aod_222 = stgo_aod(v22, ir2, m22, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
-                    aod_232 = stgo_aod(v22, ir2, m23, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
-        
-                    time_2 = date2
-                    
-                    plot_day(stgo_unit, time_2, aod_221, m_max=aod_211, m_min=aod_231, sensor = 'Sensor 2 NA')     
+                    try:
+                        
+                        aod_211 = stgo_aod(v21, ir2, m21, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
+                        aod_221 = stgo_aod(v21, ir2, m22, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
+                        aod_231 = stgo_aod(v21, ir2, m23, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
+            
+                        aod_212 = stgo_aod(v22, ir2, m21, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
+                        aod_222 = stgo_aod(v22, ir2, m22, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
+                        aod_232 = stgo_aod(v22, ir2, m23, ipressure2, iairmass2, iamu2, np.delete(ozone,del2))
+            
+                        time_2 = date2
+                        
+                        plot_day(stgo_unit, time_2, aod_221, m_max=aod_211, m_min=aod_231, sensor = 'Sensor 2 NA')     
  
+                    except:
+                        print('No plotable data Sensor 2')
                 if m3 != [] and chk3:
+                    try:
+                        aod_311 = stgo_aod(v31, ir3, m31, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
+                        aod_321 = stgo_aod(v31, ir3, m32, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
+                        aod_331 = stgo_aod(v31, ir3, m33, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
+            
+                        aod_312 = stgo_aod(v32, ir3, m31, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
+                        aod_322 = stgo_aod(v32, ir3, m32, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
+                        aod_332 = stgo_aod(v32, ir3, m33, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
+            
+                        time_3 = date3
+                        
+                        plot_day(stgo_unit, time_3, aod_321, m_max=aod_311, m_min=aod_331, sensor = 'Sensor 3 NA')     
                     
-                    aod_311 = stgo_aod(v31, ir3, m31, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
-                    aod_321 = stgo_aod(v31, ir3, m32, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
-                    aod_331 = stgo_aod(v31, ir3, m33, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
-        
-                    aod_312 = stgo_aod(v32, ir3, m31, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
-                    aod_322 = stgo_aod(v32, ir3, m32, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
-                    aod_332 = stgo_aod(v32, ir3, m33, ipressure3, iairmass3, iamu3, np.delete(ozone,del3))
-        
-                    time_3 = date3
-                    
-                    plot_day(stgo_unit, time_3, aod_321, m_max=aod_311, m_min=aod_331, sensor = 'Sensor 3 NA')     
- 
-                if m4 != [] and chk4:
-
-                    aod_411 = stgo_aod(v41, ir4, m41, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
-                    aod_421 = stgo_aod(v41, ir4, m42, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
-                    aod_431 = stgo_aod(v41, ir4, m43, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
-        
-                    aod_412 = stgo_aod(v42, ir4, m41, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
-                    aod_422 = stgo_aod(v42, ir4, m42, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
-                    aod_432 = stgo_aod(v42, ir4, m43, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
-        
-                    time_4 = date4
+                    except:
+                        print('No plotable data Sensor 3')
      
-                    plot_day(stgo_unit, time_4, aod_421, m_max=aod_411, m_min=aod_431, sensor = 'Sensor 4 NA')     
+                if m4 != [] and chk4:
+                    try:
+                        aod_411 = stgo_aod(v41, ir4, m41, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
+                        aod_421 = stgo_aod(v41, ir4, m42, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
+                        aod_431 = stgo_aod(v41, ir4, m43, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
+            
+                        aod_412 = stgo_aod(v42, ir4, m41, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
+                        aod_422 = stgo_aod(v42, ir4, m42, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
+                        aod_432 = stgo_aod(v42, ir4, m43, ipressure4, iairmass4, iamu4, np.delete(ozone,del4))
+            
+                        time_4 = date4
+         
+                        plot_day(stgo_unit, time_4, aod_421, m_max=aod_411, m_min=aod_431, sensor = 'Sensor 4 NA')     
                     
+                    except:
+                        print('No plotable data Sensor 3')
 
         else:
             if stgo_data == []:

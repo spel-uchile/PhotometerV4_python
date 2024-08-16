@@ -174,7 +174,7 @@ def mfilter(stgo_data, name, cut = 0, cloud_filter = 0):
             for j in stgo_data[i_m1[i]][name]:
                 if j >= 50 and j <= 3800 :
                     m1.append(j)
-                    
+            
             if len(m1) == 3:
                 m1_max = max(m1)
                 m1_min = min(m1)
@@ -516,7 +516,8 @@ def rmse_calibration(x):
     """
     x=[lambda, v0, eta]
     """
-    return np.sqrt(np.sum(((amgstrom_interpolation(x[0],alpha,tau1))-((np.log(x[1]/(res**2))-np.log(v-4)-reyleigh(x[0])*(p/1013.25)*am-got_o3(ozo,x[2],ozo_model)*ozo_mu)/am))**2)/len(v))
+    #return np.sqrt(np.sum(((amgstrom_interpolation(x[0],alpha,tau1))-((np.log(x[1]/(res**2))-np.log(v-4)-reyleigh(x[0])*(p/1013.25)*am-got_o3(ozo,x[2],ozo_model)*ozo_mu)/am))**2)/len(v))
+    return np.sqrt(np.sum(((amgstrom_interpolation(x[0],alpha,tau1))-((np.log(x[1]/(res**2))-np.log(v-4)-reyleigh(x[0])*(p/1013.25)*am-got_o3(ozo,x[0],ozo_model)*ozo_mu)/am))**2)/len(v))
 
 def rmse_calibrationv3(x):
     """
@@ -526,6 +527,7 @@ def rmse_calibrationv3(x):
 
 def stgo_aod(x,earth_sun_dis,vmeasure,press, air_mass, mu, ozone):
     return ((np.log(x[1]/(earth_sun_dis**2))-np.log(vmeasure)-reyleigh(x[0])*(press/1013.25)*air_mass-got_o3(ozone,x[1],ozo_model)*mu)/air_mass)
+   
 
 def stgo_aodv3(x,earth_sun_dis,vmeasure,press, air_mass):
     return ((np.log(x[1]/(earth_sun_dis**2))-np.log(vmeasure)-reyleigh(x[0])*(press/1013.25)*air_mass)/air_mass)
@@ -537,9 +539,11 @@ if __name__ == "__main__":
     
     ozo_model = load_ozone_model()
 
-    stgo_unit = '010'
+    #stgo_unit = '008'
+    stgo_unit = '003'     
+    #stgo_unit = '010'
     aero_unit = '835'
-    aero_unit2 = '760'
+    #aero_unit2 = '760'
     
     cal_date1 = []
     cal_date2 = []
@@ -556,7 +560,7 @@ if __name__ == "__main__":
      
     datei = dt.datetime(2020, 1, 1)
     
-    while datei != dt.datetime(2021, 1, 1):
+    while datei != dt.datetime(2025, 1, 1):
         
         day = datei.day
         month = datei.month
@@ -574,13 +578,13 @@ if __name__ == "__main__":
         
         stgo_data = load_stgo_data(stgo_unit, date_day)
         aero_data = load_aero_data(aero_unit, date_day)
-        aero_data2 = load_aero_data(aero_unit2, date_day)
+        #aero_data2 = load_aero_data(aero_unit2, date_day)
                 
         if (stgo_data != []) and (aero_data != []):
              
             stgo_data = stgo_filter(stgo_data, cut, cloud_filter)
             aero_data = aeronet_filter(aero_data)
-            aero_data2 = aeronet_filter(aero_data2)
+            #aero_data2 = aeronet_filter(aero_data2)
                 
             m1, date1, seconds1, pressure1, airmass1, amu1, r1, altitude1, latitude1, longitude1 = stgo_useful_data(stgo_data, 'm1')
             m2, date2, seconds2, pressure2, airmass2, amu2, r2, altitude2, latitude2, longitude2 = stgo_useful_data(stgo_data, 'm2')
@@ -588,7 +592,7 @@ if __name__ == "__main__":
             m4, date4, seconds4, pressure4, airmass4, amu4, r4, altitude4, latitude4, longitude4 = stgo_useful_data(stgo_data, 'm4')
             
             t1, aero_lamb, amgstrom, aero_date, aero_seconds, ozone, aero_latitude, aero_longitude, aero_air_mass = aero_useful_data_v2(aero_data)
-            t12, aero_lamb2, amgstrom2, aero_date2, aero_seconds2, ozone2, aero_latitude2, aero_longitude2, aero_air_mass2 = aero_useful_data_v2(aero_data2)
+            #t12, aero_lamb2, amgstrom2, aero_date2, aero_seconds2, ozone2, aero_latitude2, aero_longitude2, aero_air_mass2 = aero_useful_data_v2(aero_data2)
             
             if (np.abs(aero_latitude-latitude1)<0.005) and (np.abs(aero_longitude-longitude1)<0.005):
             
@@ -618,7 +622,7 @@ if __name__ == "__main__":
                     
                     for x in x01:
                         
-                        x_mod = [0.624-0.05, 2047, 0.624]
+                        x_mod = [0.390-0.05, 2047, 0.390]
                         
                         cal_date1.append(str(datei))
                         
@@ -628,6 +632,7 @@ if __name__ == "__main__":
                         else:
                             x1.append(np.array([0,0]))
                     
+                        #response12 = minimize(rmse_calibration, x, method = 'nelder-mead', options ={'disp':True})    
                         response12 = minimize(rmse_calibration, x_mod, method = 'nelder-mead', options ={'disp':True})
                         if response12.fun < 0.4:
                             x11.append(response12.x)
@@ -649,7 +654,7 @@ if __name__ == "__main__":
                     #plt.plot(v)
                     
                     for x in x01:
-                        x_mod = [0.527-0.05, 2047, 0.527]
+                        x_mod = [0.470-0.05, 2047, 0.470]
                         
                         cal_date2.append(str(datei))
                         
@@ -659,6 +664,7 @@ if __name__ == "__main__":
                         else:
                             x2.append(np.array([0,0]))
                     
+                        #response22 = minimize(rmse_calibration, x, method = 'nelder-mead', options ={'disp':True})
                         response22 = minimize(rmse_calibration, x_mod, method = 'nelder-mead', options ={'disp':True})
                         if response22.fun < 0.4:
                             x12.append(response22.x)
@@ -680,7 +686,7 @@ if __name__ == "__main__":
                     #plt.plot(v)
                     
                     for x in x01:
-                        x_mod = [0.47-0.05, 2047, 0.47]
+                        x_mod = [0.565-0.05, 2048, 0.565]
                         
                         cal_date3.append(str(datei))
                         
@@ -689,6 +695,7 @@ if __name__ == "__main__":
                             x3.append(response3.x)
                         else:
                             x3.append(np.array([0,0]))
+                        #response32 = minimize(rmse_calibration, x, method = 'nelder-mead', options ={'disp':True})
                         response32 = minimize(rmse_calibration, x_mod, method = 'nelder-mead', options ={'disp':True})
                         if response32.fun < 0.4:
                             x13.append(response32.x)
@@ -710,7 +717,7 @@ if __name__ == "__main__":
                     #plt.plot(v)
                 
                     for x in x01:
-                        x_mod = [0.591-0.05, 2047, 0.591]
+                        x_mod = [0.800-0.05, 2047, 0.800]
                         
                         cal_date4.append(str(datei))
                         
@@ -719,7 +726,8 @@ if __name__ == "__main__":
                             x4.append(response4.x)
                         else:
                             x4.append(np.array([0,0]))
-                            
+                        
+                        #response42 = minimize(rmse_calibration, x, method = 'nelder-mead', options ={'disp':True})    
                         response42 = minimize(rmse_calibration, x_mod, method = 'nelder-mead', options ={'disp':True})
                         if response42.fun < 0.4:
                             x14.append(response42.x)

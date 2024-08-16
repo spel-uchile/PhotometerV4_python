@@ -56,6 +56,7 @@ class measurement_class():
                 dates[1] = date3 + delta2
                 
             self.date = [dates[0],dates[1],dates[2]]
+            print(self.date)
             
             lat = 0.0
             lon = 0.0

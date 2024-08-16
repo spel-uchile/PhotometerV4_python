@@ -34,6 +34,7 @@ def import_aeronet_data():
     folder_data = []
     for file in data_folder:
         file_data = []
+        date_str = '00:00:0000'
         counter = 0
         with open(path + "/" + file) as csvfile:
             frame = csv.reader(csvfile)
@@ -51,7 +52,15 @@ def import_aeronet_data():
                 elif counter > 6:
                     for index in index_data:    
                         data[header[index]] = row[index]
-                    file_data.append(data)
+                    if (data[header[0]] == date_str) or date_str == '00:00:0000':
+                        file_data.append(data)
+                        if  (date_str == '00:00:0000'):
+                            date_str = data[header[0]]
+                    else:
+                        date_str = data[header[0]]
+                        folder_data.append(file_data)
+                        file_data = []
+                        
                 counter += 1
         folder_data.append(file_data)
         
@@ -73,8 +82,11 @@ def aeronet_day_dict(folder_data, header):
 
     """
     for data in folder_data:
-        with open('Code/../../aeronet_data/'+ data[0][header[12]] + '_' + data[0][header[0]].replace(':','_') +'.json', "w") as outfile:  
-            json.dump(data, outfile) 
+        try:
+            with open('Code/../../aeronet_data/'+ data[0][header[12]] + '_' + data[0][header[0]].replace(':','_') +'.json', "w") as outfile:  
+                json.dump(data, outfile) 
+        except:
+            pass
     return True      
 
 if __name__ == "__main__":

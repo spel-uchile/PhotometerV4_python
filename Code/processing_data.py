@@ -39,6 +39,7 @@ def import_data():
         for file in data_files:
             #Open Document
             with open(path + "/" + folder + "/" + file) as csvfile:
+                print(file)
                 frame = csv.reader(csvfile)
     
                 for row in frame:
@@ -47,7 +48,12 @@ def import_data():
                     else:
                         measurement_code = row[0]+row[9]+row[10]+row[11]+row[12]+row[13]+row[14]
                     try:
+                        #print(measurement_code)
+                        #print(row[0])
                         #Code check
+                        if len(row[0]) != 3:
+                            row[0] = '0'*(3-len(row[0]))+row[0]
+                            
                         cod_buff = code[row[0]]
                         #try:
                         #cod_buff.index(measurement_code)
@@ -62,6 +68,8 @@ def import_data():
         
                         
                     except KeyError:
+                        #print('key error')
+                        print(row[0])
                         data[row[0]] = [row]
                         code[row[0]] = [measurement_code]
     return data, code
@@ -103,10 +111,10 @@ def patch(data, code):
     for key in data.keys():
         buff = data[key]
         buff_code = code[key]
-        print(key)
+        #print(key)
         
         for measurement in range(len(buff)):
-            print(buff[measurement])
+            #print(buff[measurement])
             if len(buff[measurement]) == 17:
                 buff_measurement = []
                 buff_measurement.append(buff[measurement][0])
@@ -179,35 +187,39 @@ def time_estruct(data, code):
             
         for measurement in range(len(buff)):
             #print(key)
-            year = int(buff[measurement][11])
-            month = int(buff[measurement][10])
-            day = int(buff[measurement][9])
-            hour = int(buff[measurement][12])
-            minute = int(buff[measurement][13])
-            second = int(buff[measurement][14])
-            
-            if year == 2000:
-                time_measurement = dt.timedelta(hours=hour, minutes = minute, seconds = second)
-                date_measurement = dt.datetime(year, 1, 1) + time_measurement
-                buff_code[measurement]+= 'D'
-            elif year == 2080:
-                time_measurement = dt.timedelta(hours=hour, minutes = minute, seconds = second)
-                date_measurement = dt.datetime(year, 1, 1) + time_measurement
-                buff_code[measurement]+= 'T'
-            else:
-                time_measurement = dt.timedelta(hours=hour, minutes = minute, seconds = second)
-                date_measurement = dt.datetime(year, month, day) + time_measurement
             try:
-                date_buff = date[key]
-                date_buff.append(date_measurement)
-                date[key] = date_buff
-                
-                time_buff = time[key]
-                time_buff.append(time_measurement)
-                time[key] = time_buff
-            except KeyError:
-                date[key] = [date_measurement]
-                time[key] = [time_measurement]
+                #print(buff[measurement])
+                year = int(buff[measurement][11])
+                month = int(buff[measurement][10])
+                day = int(buff[measurement][9])
+                hour = int(buff[measurement][12])
+                minute = int(buff[measurement][13])
+                second = int(buff[measurement][14])
+            
+                if year == 2000:
+                    time_measurement = dt.timedelta(hours=hour, minutes = minute, seconds = second)
+                    date_measurement = dt.datetime(year, 1, 1) + time_measurement
+                    buff_code[measurement]+= 'D'
+                elif year == 2080:
+                    time_measurement = dt.timedelta(hours=hour, minutes = minute, seconds = second)
+                    date_measurement = dt.datetime(year, 1, 1) + time_measurement
+                    buff_code[measurement]+= 'T'
+                else:
+                    time_measurement = dt.timedelta(hours=hour, minutes = minute, seconds = second)
+                    date_measurement = dt.datetime(year, month, day) + time_measurement
+                try:
+                    date_buff = date[key]
+                    date_buff.append(date_measurement)
+                    date[key] = date_buff
+                    
+                    time_buff = time[key]
+                    time_buff.append(time_measurement)
+                    time[key] = time_buff
+                except KeyError:
+                    date[key] = [date_measurement]
+                    time[key] = [time_measurement]
+            except ValueError:
+                pass
     return date, time, code
 
 def measure_struct(data):
@@ -561,7 +573,8 @@ if __name__ == "__main__":
     for key in data.keys():  
         print(key)
         date1 = dt.datetime(2020, 1, 1)
-        while date1 != dt.datetime(2020, 12, 31):
+        print(date1)
+        while date1 != dt.datetime(2024, 12, 31):
     
             dict_measures = data_day_dict(key, date1, measurement_structure)
             measures = data_day(key, date1, measurement_structure)
